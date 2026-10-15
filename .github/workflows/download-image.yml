@@ -1,0 +1,27 @@
+name: Download 60s image
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Pull and export
+        run: |
+          docker pull --platform linux/amd64 vikiboss/60s:latest
+          docker save -o 60s-amd64.tar vikiboss/60s:latest
+          sha256sum 60s-amd64.tar > 60s-amd64.tar.sha256
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: 60s-offline-image
+          path: |
+            60s-amd64.tar
+            60s-amd64.tar.sha256
+          retention-days: 3
+          if-no-files-found: error
